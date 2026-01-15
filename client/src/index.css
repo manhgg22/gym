@@ -1,0 +1,421 @@
+/* Mobile-first responsive design for iPhone 13 (390x844px) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Color Palette */
+  --primary-bg: #0F172A;
+  --secondary-bg: #1E293B;
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --accent-red: #EF4444;
+  --accent-orange: #F97316;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --success: #10B981;
+  --border: rgba(203, 213, 225, 0.1);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+
+  /* Transitions */
+  --transition: all 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* Override Ant Design theme for dark mode */
+.ant-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  backdrop-filter: blur(10px);
+  transition: var(--transition) !important;
+}
+
+.ant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.ant-card-head {
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-card-head-title {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+}
+
+.ant-card-body {
+  color: var(--text-secondary) !important;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography h4 {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+.ant-typography {
+  color: var(--text-primary) !important;
+}
+
+.ant-typography-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Buttons */
+.ant-btn {
+  border-radius: var(--radius) !important;
+  font-weight: 600 !important;
+  transition: var(--transition) !important;
+  min-height: 44px !important;
+}
+
+.ant-btn-primary {
+  background: var(--accent-red) !important;
+  border-color: var(--accent-red) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+}
+
+.ant-btn-primary:hover {
+  background: #DC2626 !important;
+  border-color: #DC2626 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4) !important;
+}
+
+.ant-btn-default {
+  background: var(--secondary-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-btn-default:hover {
+  background: var(--card-bg) !important;
+  border-color: var(--accent-red) !important;
+  color: var(--accent-red) !important;
+}
+
+/* Segmented */
+.ant-segmented {
+  background: var(--secondary-bg) !important;
+  border-radius: var(--radius) !important;
+  padding: 4px !important;
+}
+
+.ant-segmented-item {
+  color: var(--text-secondary) !important;
+}
+
+.ant-segmented-item-selected {
+  background: var(--accent-red) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Progress */
+.ant-progress-bg {
+  background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)) !important;
+}
+
+.ant-progress-text {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+/* Statistics */
+.ant-statistic-title {
+  color: var(--text-secondary) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.ant-statistic-content {
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+/* Calendar - Ultra compact style */
+.ant-picker-calendar {
+  background: transparent !important;
+  border: none !important;
+}
+
+.ant-picker-panel {
+  background: transparent !important;
+  border: none !important;
+}
+
+.ant-picker-calendar-header {
+  border-bottom: 1px solid var(--border) !important;
+  padding-bottom: var(--spacing-sm) !important;
+}
+
+.ant-picker-cell {
+  color: var(--text-secondary) !important;
+  padding: 1px !important;
+}
+
+.ant-picker-cell-in-view {
+  color: var(--text-primary) !important;
+}
+
+.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--accent-red) !important;
+}
+
+.ant-picker-calendar-date-content {
+  height: auto !important;
+  min-height: 24px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-picker-cell-inner {
+  min-height: 28px !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+}
+
+.ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date {
+  border-top: none !important;
+}
+
+.ant-picker-content thead th {
+  padding: 4px 0 !important;
+}
+
+/* Alert */
+.ant-alert {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  backdrop-filter: blur(10px);
+}
+
+.ant-alert-warning {
+  border-color: var(--accent-orange) !important;
+}
+
+.ant-alert-warning .ant-alert-icon {
+  color: var(--accent-orange) !important;
+}
+
+.ant-alert-error {
+  border-color: var(--accent-red) !important;
+}
+
+.ant-alert-error .ant-alert-icon {
+  color: var(--accent-red) !important;
+}
+
+.ant-alert-message {
+  color: var(--text-primary) !important;
+}
+
+/* Spin */
+.ant-spin-dot-item {
+  background: var(--accent-red) !important;
+}
+
+.ant-spin-text {
+  color: var(--text-secondary) !important;
+}
+
+/* Modal */
+.ant-modal-content {
+  background: var(--secondary-bg) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.ant-modal-title {
+  color: var(--text-primary) !important;
+}
+
+.ant-modal-body {
+  color: var(--text-secondary) !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid var(--border) !important;
+}
+
+/* Checkbox */
+.ant-checkbox-wrapper {
+  color: var(--text-primary) !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+}
+
+/* List */
+.ant-list-item {
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Video embed */
+.video-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  margin-top: var(--spacing-md);
+  box-shadow: var(--shadow-md);
+}
+
+.video-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .ant-card-body {
+    padding: var(--spacing-md) !important;
+  }
+
+  h1,
+  .ant-typography h1 {
+    font-size: 24px !important;
+  }
+
+  h2,
+  .ant-typography h2 {
+    font-size: 20px !important;
+  }
+
+  h3,
+  .ant-typography h3 {
+    font-size: 18px !important;
+  }
+
+  h4,
+  .ant-typography h4 {
+    font-size: 16px !important;
+  }
+}
+
+/* iPhone safe area */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Prevent zoom on iOS */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
+
+/* Custom workout intensity colors */
+.workout-high {
+  background: linear-gradient(135deg, var(--accent-red), var(--accent-orange)) !important;
+}
+
+.workout-medium {
+  background: var(--accent-orange) !important;
+}
+
+.workout-low {
+  background: var(--success) !important;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(30, 41, 59, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(203, 213, 225, 0.1) !important;
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: var(--transition);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Success animation */
+@keyframes success-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.success-animation {
+  animation: success-pulse 0.3s ease;
+}

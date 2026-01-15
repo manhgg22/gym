@@ -1,0 +1,65 @@
+services:
+  # Backend Server
+  - type: web
+    name: workout-tracker-server
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: SHEET_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: PORT
+        value: 4000
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TZ
+        value: Asia/Bangkok
+    healthCheckPath: /health
+
+  # Telegram Notification Service
+  - type: worker
+    name: workout-tracker-notify
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm run notify
+    envVars:
+      - key: SHEET_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: API_BASE
+        fromService:
+          type: web
+          name: workout-tracker-server
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: MODE
+        value: 4
+      - key: TZ
+        value: Asia/Bangkok
+
+  # Frontend Client
+  - type: web
+    name: workout-tracker-client
+    env: static
+    region: singapore
+    plan: starter
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    envVars:
+      - key: VITE_API_BASE
+        fromService:
+          type: web
+          name: workout-tracker-server
+          envVarKey: RENDER_EXTERNAL_URL
