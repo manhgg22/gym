@@ -20,6 +20,8 @@
     "@vitejs/plugin-react": "^5.1.2",
     "antd": "^6.2.0",
     "dayjs": "^1.11.19",
-    "react-router-dom": "^7.12.0"
+    "react-calendar-heatmap": "^1.10.0",
+    "react-router-dom": "^7.12.0",
+    "recharts": "^3.6.0"
   }
 }

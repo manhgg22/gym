@@ -89,11 +89,45 @@ export async function getSessions() {
 /**
  * Get exercises for a session
  */
+/**
+ * Get exercises for a session
+ */
 export async function getExercises(sessionId) {
     const url = sessionId
         ? `${API}/exercises?session_id=${sessionId}`
         : `${API}/exercises`;
     const r = await fetch(url);
     if (!r.ok) throw new Error("Failed to fetch exercises");
+    return r.json();
+}
+
+/**
+ * Log Bodyweight
+ */
+export async function logBodyweight(payload) {
+    const r = await fetch(`${API}/bodyweight`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+    if (!r.ok) throw new Error("Failed to log bodyweight");
+    return r.json();
+}
+
+/**
+ * Get Bodyweight History
+ */
+export async function getBodyweightHistory() {
+    const r = await fetch(`${API}/bodyweight-history`);
+    if (!r.ok) throw new Error("Failed to fetch bodyweight history");
+    return r.json();
+}
+
+/**
+ * Get Heatmap Data
+ */
+export async function getHeatmap() {
+    const r = await fetch(`${API}/year-heatmap`);
+    if (!r.ok) throw new Error("Failed to fetch heatmap data");
     return r.json();
 }

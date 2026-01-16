@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import https from "https";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -7,6 +8,8 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const API_BASE = process.env.API_BASE || "http://localhost:4000";
 const MODE = Number(process.env.MODE || 4);
 
+const agent = new https.Agent({ family: 4 });
+
 /**
  * Send message to Telegram
  */
@@ -14,6 +17,7 @@ async function sendMessage(chatId, text, options = {}) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
     try {
         const response = await fetch(url, {
+            agent,
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -174,21 +178,51 @@ async function handleUpdate(update) {
 
     console.log(`📩 Message from ${chatId}: ${text}`);
 
-    if (text === "/start") {
+    // Normalize command - remove "/" if present and convert to lowercase
+    const command = text.trim().toLowerCase().replace(/^\//, '');
+
+    if (command === "start") {
         await handleStart(chatId);
-    } else if (text === "/today") {
+    } else if (command === "today") {
         await handleToday(chatId);
-    } else if (text === "/checkin") {
+    } else if (command === "checkin") {
         await handleCheckin(chatId);
-    } else if (text === "/stats") {
+    } else if (command === "stats") {
         await handleStats(chatId);
-    } else if (text === "/help") {
+    } else if (command === "help" || command === "menu") {
         await handleHelp(chatId);
     } else {
         await sendMessage(
             chatId,
-            "❓ Lệnh không hợp lệ. Gõ /help để xem danh sách lệnh."
+            "❓ Lệnh không hợp lệ. Gõ *help* hoặc *menu* để xem danh sách lệnh."
         );
+    }
+}
+
+/**
+ * Setup bot commands menu
+ */
+async function setupBotCommands() {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/setMyCommands`;
+    try {
+        await fetch(url, {
+            agent,
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                commands: [
+                    { command: "start", description: "Bắt đầu sử dụng bot" },
+                    { command: "today", description: "Xem buổi tập hôm nay" },
+                    { command: "checkin", description: "Check-in đã tập xong" },
+                    { command: "stats", description: "Xem thống kê tháng này" },
+                    { command: "help", description: "Xem hướng dẫn" },
+                    { command: "menu", description: "Hiện menu lệnh" }
+                ]
+            })
+        });
+        console.log("✅ Bot menu commands setup successfully");
+    } catch (error) {
+        console.error("❌ Error setting up bot commands:", error);
     }
 }
 
@@ -201,12 +235,15 @@ async function startBot() {
     console.log(`🔗 API Base: ${API_BASE}`);
     console.log("\n⏳ Waiting for messages...\n");
 
+    // Setup bot menu commands
+    await setupBotCommands();
+
     let offset = 0;
 
     while (true) {
         try {
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${offset}&timeout=30`;
-            const response = await fetch(url);
+            const response = await fetch(url, { agent });
             const data = await response.json();
 
             if (data.ok && data.result.length > 0) {

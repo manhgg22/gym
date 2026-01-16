@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { getTodayPlan, quickCheckin } from "../services/api";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { quickCheckin } from "../services/api";
+import { useFitness } from "../context/FitnessContext";
 import {
     Card,
     Button,
@@ -13,7 +13,6 @@ import {
     Row,
     Col,
     Statistic,
-    Progress,
     notification,
 } from "antd";
 import {
@@ -23,81 +22,45 @@ import {
     FireOutlined,
     TrophyOutlined,
     WarningOutlined,
+    LineChartOutlined
 } from "@ant-design/icons";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
-export default function Dashboard() {
-    const [plan, setPlan] = useState(null);
-    const [mode, setMode] = useState(4);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+export default function Dashboard({ onNavigate }) {
+    const { plan, mode, setMode, loading, heatmapData, weightHistory, refreshData } = useFitness();
     const [checking, setChecking] = useState(false);
-
-    useEffect(() => {
-        setLoading(true);
-        setError(null);
-        getTodayPlan(mode)
-            .then(setPlan)
-            .catch((err) => setError(err.message))
-            .finally(() => setLoading(false));
-    }, [mode]);
 
     const handleQuickCheckin = async () => {
         setChecking(true);
         try {
             const result = await quickCheckin(mode);
-            setPlan(null);
-            setTimeout(() => getTodayPlan(mode).then(setPlan), 300);
+            await refreshData(true);
 
-            // Success notification
             notification.success({
                 message: 'Check-in thành công!',
                 description: `Buổi tập: ${result.session.session_name}`,
                 icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
                 placement: 'topRight',
-                duration: 3,
             });
         } catch (err) {
-            // Error notification
-            if (err.message && err.message.includes("đã tập rồi")) {
-                notification.error({
-                    message: 'Không thể check-in!',
-                    description: 'Bạn đã tập rồi hôm nay! Mỗi ngày chỉ được tập 1 buổi.',
-                    icon: <WarningOutlined style={{ color: '#ff4d4f' }} />,
-                    placement: 'topRight',
-                    duration: 5,
-                });
-            } else {
-                notification.error({
-                    message: 'Lỗi',
-                    description: err.message,
-                    placement: 'topRight',
-                    duration: 4,
-                });
-            }
+            notification.error({
+                message: 'Lỗi',
+                description: err.message,
+                placement: 'topRight',
+            });
         } finally {
             setChecking(false);
         }
     };
 
-    if (loading) {
+    if (loading && !plan) {
         return (
             <div style={{ padding: "40px", textAlign: "center", minHeight: "100vh" }}>
                 <Spin size="large" tip="Đang tải..." />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div style={{ padding: "40px", minHeight: "100vh" }}>
-                <Alert
-                    message="Lỗi kết nối"
-                    description={error}
-                    type="error"
-                    showIcon
-                />
             </div>
         );
     }
@@ -117,7 +80,6 @@ export default function Dashboard() {
                 maxWidth: 1200,
                 margin: "0 auto",
                 padding: window.innerWidth <= 768 ? "16px" : "24px",
-                minHeight: "100vh",
             }}
         >
             <Space direction="vertical" size="large" style={{ width: "100%" }}>
@@ -196,16 +158,15 @@ export default function Dashboard() {
 
                         <Row gutter={12}>
                             <Col span={12}>
-                                <Link to={`/workout?mode=${mode}`} style={{ width: "100%" }}>
-                                    <Button
-                                        type="primary"
-                                        icon={<PlayCircleOutlined />}
-                                        size="large"
-                                        block
-                                    >
-                                        Bắt đầu tập
-                                    </Button>
-                                </Link>
+                                <Button
+                                    type="primary"
+                                    icon={<PlayCircleOutlined />}
+                                    size="large"
+                                    block
+                                    onClick={() => onNavigate("workout")}
+                                >
+                                    Bắt đầu tập
+                                </Button>
                             </Col>
                             <Col span={12}>
                                 <Button
@@ -246,6 +207,44 @@ export default function Dashboard() {
                     </Col>
                 </Row>
 
+                {/* Heatmap & Weight Chart */}
+                <Row gutter={16}>
+                    <Col xs={24} md={12}>
+                        <Card title={<Space><CalendarOutlined /> Phong độ tập luyện</Space>} className="glass">
+                            <div style={{ height: 150 }}>
+                                <CalendarHeatmap
+                                    startDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
+                                    endDate={new Date()}
+                                    values={heatmapData}
+                                    classForValue={(value) => {
+                                        if (!value) return 'color-empty';
+                                        return `color-scale-${Math.min(value.count, 4)}`;
+                                    }}
+                                    tooltipDataAttrs={value => ({
+                                        'data-tip': value.date ? `${value.date}: Đã tập` : 'Nghỉ'
+                                    })}
+                                    showWeekdayLabels
+                                />
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} md={12}>
+                        <Card title={<Space><LineChartOutlined /> Biểu đồ cân nặng</Space>} className="glass">
+                            <div style={{ width: '100%', height: 200 }}>
+                                <ResponsiveContainer>
+                                    <LineChart data={weightHistory}>
+                                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                                        <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(t) => t.slice(5)} />
+                                        <YAxis domain={['dataMin - 2', 'dataMax + 2']} hide />
+                                        <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 8 }} />
+                                        <Line type="monotone" dataKey="weight" stroke="#10B981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </Card>
+                    </Col>
+                </Row>
+
                 {/* Tips Card */}
                 <Card title="💡 Tips nhanh" className="glass">
                     <List
@@ -260,16 +259,16 @@ export default function Dashboard() {
                 </Card>
 
                 {/* Quick Actions */}
-                <Link to="/calendar">
-                    <Button
-                        type="default"
-                        icon={<CalendarOutlined />}
-                        size="large"
-                        block
-                    >
-                        Xem lịch tháng
-                    </Button>
-                </Link>
+                <Button
+                    type="default"
+                    icon={<CalendarOutlined />}
+                    size="large"
+                    block
+                    onClick={() => onNavigate("calendar")}
+                    style={{ marginBottom: 40 }}
+                >
+                    Xem lịch tháng
+                </Button>
             </Space>
         </div>
     );

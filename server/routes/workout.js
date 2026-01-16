@@ -248,20 +248,31 @@ router.post("/quick-checkin", async (req, res) => {
 
 /**
  * POST /exercise-check
- * Log an exercise check
+ * Log an exercise check with Weight & Reps + PR Check
  */
 router.post("/exercise-check", async (req, res) => {
     try {
-        const { date, session_id, exercise_id, checked } = req.body;
+        const { date, session_id, exercise_id, checked, weight, reps } = req.body;
 
         if (!date || !session_id || !exercise_id) {
-            return res
-                .status(400)
-                .json({ error: "date, session_id, and exercise_id required" });
+            return res.status(400).json({ error: "date, session_id, and exercise_id required" });
         }
 
-        await logExerciseCheck(date, session_id, exercise_id, checked);
-        res.json({ ok: true });
+        await logExerciseCheck(date, session_id, exercise_id, checked, weight, reps);
+
+        // Check for PR
+        let isPR = false;
+        if (checked && weight && reps) {
+            // Import helper dynamically to avoid circular dependency issues if any, 
+            // but here we are in same context. Using imported functions directly.
+            const { checkPR } = await import("../services/sheets.js");
+            isPR = await checkPR(exercise_id, weight, reps);
+            if (isPR) {
+                await notifyEvent("NEW_PR", { exerciseId: exercise_id, weight, reps });
+            }
+        }
+
+        res.json({ ok: true, isPR });
     } catch (error) {
         console.error("Error in /exercise-check:", error);
         res.status(500).json({ error: error.message });
@@ -269,30 +280,51 @@ router.post("/exercise-check", async (req, res) => {
 });
 
 /**
- * GET /sessions
- * Get all workout sessions
+ * POST /bodyweight
  */
-router.get("/sessions", async (req, res) => {
+router.post("/bodyweight", async (req, res) => {
     try {
-        const sessions = await getSessions();
-        res.json(sessions);
+        const { date, weight, note } = req.body;
+        if (!date || !weight) return res.status(400).json({ error: "Missing fields" });
+
+        // Dynamic import to break potential circular dependencies or just cleaner scope
+        const { logBodyweight } = await import("../services/sheets.js");
+        await logBodyweight(date, weight, note);
+        res.json({ ok: true });
     } catch (error) {
-        console.error("Error in /sessions:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
 /**
- * GET /exercises?session_id=S1
- * Get exercises (optionally filtered by session)
+ * GET /bodyweight-history
  */
-router.get("/exercises", async (req, res) => {
+router.get("/bodyweight-history", async (req, res) => {
     try {
-        const sessionId = req.query.session_id;
-        const exercises = await getExercises(sessionId);
-        res.json(exercises);
+        const { getBodyweightLogs } = await import("../services/sheets.js");
+        const logs = await getBodyweightLogs();
+        res.json(logs);
     } catch (error) {
-        console.error("Error in /exercises:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * GET /year-heatmap
+ */
+router.get("/year-heatmap", async (req, res) => {
+    try {
+        const logs = await getLogs();
+        const completedLogs = logs.filter(l => String(l.completed).toUpperCase() === "TRUE");
+
+        // Group by date
+        const map = {};
+        completedLogs.forEach(l => {
+            map[l.date] = (map[l.date] || 0) + 1;
+        });
+
+        res.json(map);
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });

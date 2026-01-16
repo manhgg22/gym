@@ -75,7 +75,7 @@ export async function getSessions() {
  * Get exercises for a specific session
  */
 export async function getExercises(sessionId = null) {
-  const rows = await getRange("Exercises!A1:H9999");
+  const rows = await getRange("Exercises!A1:I9999"); // Added column I for animation_url
   const exercises = rowsToObjects(rows);
 
   if (sessionId) {
@@ -130,11 +130,57 @@ export async function logWorkout(date, sessionId, completed, durationMin, note) 
 /**
  * Log an exercise check
  */
-export async function logExerciseCheck(date, sessionId, exerciseId, checked) {
+/**
+ * Log an exercise check with Weight & Reps
+ */
+export async function logExerciseCheck(date, sessionId, exerciseId, checked, weight = "", reps = "") {
   await appendRow("Exercise_Check!A1", [
     date,
     sessionId,
     exerciseId,
     checked ? "TRUE" : "FALSE",
+    weight,
+    reps
   ]);
+}
+
+/**
+ * Log Bodyweight
+ */
+export async function logBodyweight(date, weight, note = "") {
+  await appendRow("Bodyweight_Log!A1", [date, weight, note]);
+}
+
+/**
+ * Get Bodyweight history
+ */
+export async function getBodyweightLogs() {
+  const rows = await getRange("Bodyweight_Log!A1:C9999");
+  return rowsToObjects(rows);
+}
+
+/**
+ * Calculate 1RM (Epley Formula)
+ */
+export function calculate1RM(weight, reps) {
+  if (!weight || !reps) return 0;
+  if (reps == 1) return weight;
+  return Math.round(weight * (1 + reps / 30));
+}
+
+/**
+ * Check for Personal Record (PR)
+ */
+export async function checkPR(exerciseId, weight, reps) {
+  if (!weight || !reps) return false;
+  const current1RM = calculate1RM(weight, reps);
+
+  const checks = await getExerciseChecks();
+  const history = checks.filter(c => c.exercise_id === exerciseId && c.weight > 0);
+
+  if (history.length === 0) return true; // First time is always a PR!
+
+  const max1RM = Math.max(...history.map(c => calculate1RM(Number(c.weight), Number(c.reps))));
+
+  return current1RM > max1RM;
 }
