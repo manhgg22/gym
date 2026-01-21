@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import workoutRoutes from "./routes/workout.js";
+import loveRoutes from "./routes/love.js";
 
 import { sendTelegram } from "./services/telegram.js";
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Routes
 app.use("/", workoutRoutes);
+app.use("/love", loveRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
