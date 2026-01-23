@@ -8,3 +8,88 @@
     font-family: 'Inter', sans-serif;
   }
 }
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .perspective-2000 {
+    perspective: 2000px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  .animate-bounce-x {
+    animation: bounce-x 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce-x {
+
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(10px);
+    }
+  }
+
+  /* Paper Plane Flight Animation */
+  @keyframes fly-out-right {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.3) rotate(0deg);
+    }
+
+    20% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(250px, -200px) scale(0.8) rotate(20deg);
+    }
+  }
+
+  @keyframes fly-out-left {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.3) rotate(0deg);
+    }
+
+    20% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-150px, -180px) scale(0.6) rotate(-25deg);
+    }
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #fca5a5;
+    border-radius: 20px;
+  }
+}
